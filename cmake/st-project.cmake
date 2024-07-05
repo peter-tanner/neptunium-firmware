@@ -8,14 +8,16 @@ target_compile_definitions(
     "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:ASM>>:DEBUG>"
     "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:DEBUG>"
     "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:USE_HAL_DRIVER>"
-    "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:STM32F302x8>"
+    "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:STM32F302xB>"
+    "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:STM32F302xC>"
     "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>:DEBUG>"
     "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>:USE_HAL_DRIVER>"
-    "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>:STM32F302x8>"
+    "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>:STM32F302xB>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:USE_HAL_DRIVER>"
-    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:STM32F302x8>"
+    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:STM32F302xB>"
+    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:STM32F302xC>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:USE_HAL_DRIVER>"
-    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:STM32F302x8>"
+    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:STM32F302xB>"
 )
 
 target_include_directories(
@@ -109,8 +111,8 @@ target_link_options(
     "$<$<NOT:$<CONFIG:Debug>>:-mfpu=fpv4-sp-d16>"
     "$<$<NOT:$<CONFIG:Debug>>:-mfloat-abi=hard>"
     -T
-    "$<$<CONFIG:Debug>:${PROJECT_SOURCE_DIR}/STM32F302C8TX_FLASH.ld>"
-    "$<$<NOT:$<CONFIG:Debug>>:${PROJECT_SOURCE_DIR}/STM32F302C8TX_FLASH.ld>"
+    "$<$<CONFIG:Debug>:${PROJECT_SOURCE_DIR}/STM32F302CBTX_FLASH.ld>"
+    "$<$<NOT:$<CONFIG:Debug>>:${PROJECT_SOURCE_DIR}/STM32F302CBTX_FLASH.ld>"
 )
 
 target_sources(
@@ -139,6 +141,7 @@ target_sources(
     "Drivers\\lsm6dsox-pid\\lsm6dsox_reg.c"
     "Drivers\\STM32F3xx_HAL_Driver\\Src\\stm32f3xx_hal_adc_ex.c"
     "Drivers\\STM32F3xx_HAL_Driver\\Src\\stm32f3xx_hal_adc.c"
+    "Drivers\\STM32F3xx_HAL_Driver\\Src\\stm32f3xx_hal_can.c"
     "Drivers\\STM32F3xx_HAL_Driver\\Src\\stm32f3xx_hal_cortex.c"
     "Drivers\\STM32F3xx_HAL_Driver\\Src\\stm32f3xx_hal_dma.c"
     "Drivers\\STM32F3xx_HAL_Driver\\Src\\stm32f3xx_hal_exti.c"

@@ -1,0 +1,17 @@
+I can't figure out how to include more paths
+
+target_include_directories(
+    "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/Drivers\\ubx_parser>"
+    "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/Drivers\\lsm6dsox-pid>"
+
+
+target_compile_options(
+    "Drivers\\ubx_parser\\neo_m8_conversion.c"
+    "Drivers\\ubx_parser\\neo_m8_gps.c"
+    "Drivers\\ubx_parser\\neo_m8_ubx_checksum.c"
+    "Drivers\\ubx_parser\\ringbuffer_char.c"
+    "Drivers\\lsm6dsox-pid\\lsm6dsox_reg.c"
+
+
+							<option id="com.st.stm32cube.ide.mcu.debug.option.cpuclock.1004140213" name="Cpu clock frequence" superClass="com.st.stm32cube.ide.mcu.debug.option.cpuclock" useByScannerDiscovery="false" value="48" valueType="string"/>
+							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.nanoprintffloat.2046259140" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.nanoprintffloat" value="true" valueType="boolean"/>

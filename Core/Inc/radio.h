@@ -2,7 +2,6 @@
 #define __RADIO_H
 
 #include "config.h"
-#include "tusb.h"
 #include "utils.h"
 #include "main.h"
 #include "sx126x.h"

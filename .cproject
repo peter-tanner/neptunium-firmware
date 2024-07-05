@@ -23,7 +23,7 @@
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu.24972762" name="Floating-point unit" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu" useByScannerDiscovery="true" value="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu.value.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.floatabi.105705460" name="Floating-point ABI" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.floatabi" useByScannerDiscovery="true" value="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.floatabi.value.hard" valueType="enumerated"/>
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.target_board.676453138" name="Board" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.target_board" useByScannerDiscovery="false" value="genericBoard" valueType="string"/>
-							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults.470421971" name="Defaults" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults" useByScannerDiscovery="false" value="com.st.stm32cube.ide.common.services.build.inputs.revA.1.0.6 || Debug || true || Executable || com.st.stm32cube.ide.mcu.gnu.managedbuild.option.toolchain.value.workspace || STM32F302CBTx || 0 || 0 || arm-none-eabi- || ${gnu_tools_for_stm32_compiler_path} || ../USB_DEVICE/App | ../USB_DEVICE/Target | ../Core/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy | ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc | ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc | ../Drivers/CMSIS/Device/ST/STM32F3xx/Include | ../Drivers/CMSIS/Include | ../FATFS/Target | ../FATFS/App | ../Middlewares/Third_Party/FatFs/src ||  ||  || USE_HAL_DRIVER | STM32F302xB | STM32F302xC ||  || Drivers | Core/Startup | Middlewares | Core | FATFS ||  ||  || ${workspace_loc:/${ProjName}/STM32F302CBTX_FLASH.ld} || true || NonSecure ||  || secure_nsclib.o ||  || None ||  ||  || " valueType="string"/>
+							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults.470421971" name="Defaults" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults" useByScannerDiscovery="false" value="com.st.stm32cube.ide.common.services.build.inputs.revA.1.0.6 || Debug || true || Executable || com.st.stm32cube.ide.mcu.gnu.managedbuild.option.toolchain.value.workspace || STM32F302CBTx || 0 || 0 || arm-none-eabi- || ${gnu_tools_for_stm32_compiler_path} || ../USB_DEVICE/App | ../USB_DEVICE/Target | ../Core/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy | ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc | ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc | ../Drivers/CMSIS/Device/ST/STM32F3xx/Include | ../Drivers/CMSIS/Include | ../FATFS/Target | ../FATFS/App | ../Middlewares/Third_Party/FreeRTOS/Source/include | ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS | ../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F | ../Middlewares/Third_Party/FatFs/src ||  ||  || USE_HAL_DRIVER | STM32F302xB | STM32F302xC ||  || Drivers | Composite | Core/Startup | Middlewares | Core | FATFS ||  ||  || ${workspace_loc:/${ProjName}/STM32F302CBTX_FLASH.ld} || true || NonSecure ||  || secure_nsclib.o ||  || None ||  ||  || " valueType="string"/>
 							<option id="com.st.stm32cube.ide.mcu.debug.option.cpuclock.1004140213" name="Cpu clock frequence" superClass="com.st.stm32cube.ide.mcu.debug.option.cpuclock" useByScannerDiscovery="false" value="48" valueType="string"/>
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.nanoprintffloat.2046259140" name="Use float with printf from newlib-nano (-u _printf_float)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.nanoprintffloat" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.targetplatform.1783038590" isAbstract="false" osList="all" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.targetplatform"/>
@@ -62,6 +62,16 @@
 									<listOptionValue builtIn="false" value="../FATFS/Target"/>
 									<listOptionValue builtIn="false" value="../FATFS/App"/>
 									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FatFs/src"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/App"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Class/CDC_ACM/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Class/MSC/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Class/COMPOSITE/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Core/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Target"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE"/>
 								</option>
 								<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.extra.656233696" name="Enable extra warning flags (-Wextra)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.extra" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.pedantic.1657985454" name="Issue all warnings demanded by strict ISO C and ISO C++ (-pedantic)" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.warnings.pedantic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -116,6 +126,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="FATFS"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Composite"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 					</sourceEntries>
 				</configuration>
@@ -144,7 +155,7 @@
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu.1502653665" name="Floating-point unit" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu" useByScannerDiscovery="true" value="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu.value.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.floatabi.729845312" name="Floating-point ABI" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.floatabi" useByScannerDiscovery="true" value="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.floatabi.value.hard" valueType="enumerated"/>
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.target_board.467586243" name="Board" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.target_board" useByScannerDiscovery="false" value="genericBoard" valueType="string"/>
-							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults.1405756632" name="Defaults" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults" useByScannerDiscovery="false" value="com.st.stm32cube.ide.common.services.build.inputs.revA.1.0.6 || Release || false || Executable || com.st.stm32cube.ide.mcu.gnu.managedbuild.option.toolchain.value.workspace || STM32F302CBTx || 0 || 0 || arm-none-eabi- || ${gnu_tools_for_stm32_compiler_path} || ../USB_DEVICE/App | ../USB_DEVICE/Target | ../Core/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy | ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc | ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc | ../Drivers/CMSIS/Device/ST/STM32F3xx/Include | ../Drivers/CMSIS/Include | ../FATFS/Target | ../FATFS/App | ../Middlewares/Third_Party/FatFs/src ||  ||  || USE_HAL_DRIVER | STM32F302xB | STM32F302xC ||  || Drivers | Core/Startup | Middlewares | Core | FATFS ||  ||  || ${workspace_loc:/${ProjName}/STM32F302CBTX_FLASH.ld} || true || NonSecure ||  || secure_nsclib.o ||  || None ||  ||  || " valueType="string"/>
+							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults.1405756632" name="Defaults" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.defaults" useByScannerDiscovery="false" value="com.st.stm32cube.ide.common.services.build.inputs.revA.1.0.6 || Release || false || Executable || com.st.stm32cube.ide.mcu.gnu.managedbuild.option.toolchain.value.workspace || STM32F302CBTx || 0 || 0 || arm-none-eabi- || ${gnu_tools_for_stm32_compiler_path} || ../USB_DEVICE/App | ../USB_DEVICE/Target | ../Core/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc | ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy | ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc | ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc | ../Drivers/CMSIS/Device/ST/STM32F3xx/Include | ../Drivers/CMSIS/Include | ../FATFS/Target | ../FATFS/App | ../Middlewares/Third_Party/FreeRTOS/Source/include | ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS | ../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F | ../Middlewares/Third_Party/FatFs/src ||  ||  || USE_HAL_DRIVER | STM32F302xB | STM32F302xC ||  || Drivers | Composite | Core/Startup | Middlewares | Core | FATFS ||  ||  || ${workspace_loc:/${ProjName}/STM32F302CBTX_FLASH.ld} || true || NonSecure ||  || secure_nsclib.o ||  || None ||  ||  || " valueType="string"/>
 							<option id="com.st.stm32cube.ide.mcu.debug.option.cpuclock.1159106902" name="Cpu clock frequence" superClass="com.st.stm32cube.ide.mcu.debug.option.cpuclock" useByScannerDiscovery="false" value="48" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.targetplatform.39838077" isAbstract="false" osList="all" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.targetplatform"/>
 							<builder buildPath="${workspace_loc:/neptunium}/Release" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.builder.1471351053" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.builder"/>
@@ -173,6 +184,16 @@
 									<listOptionValue builtIn="false" value="../FATFS/Target"/>
 									<listOptionValue builtIn="false" value="../FATFS/App"/>
 									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FatFs/src"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/include"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"/>
+									<listOptionValue builtIn="false" value="../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/App"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Class/CDC_ACM/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Class/MSC/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Class/COMPOSITE/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Core/Inc"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE/Target"/>
+									<listOptionValue builtIn="false" value="../USB_COMPOSITE"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.2144720992" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
@@ -223,6 +244,7 @@
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="FATFS"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Composite"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 					</sourceEntries>
 				</configuration>

@@ -57,6 +57,8 @@
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef huart3;
 extern PCD_HandleTypeDef hpcd_USB_FS;
+extern TIM_HandleTypeDef htim1;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -65,8 +67,8 @@ extern PCD_HandleTypeDef hpcd_USB_FS;
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
-  * @brief This function handles Non maskable interrupt.
-  */
+ * @brief This function handles Non maskable interrupt.
+ */
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
@@ -80,8 +82,8 @@ void NMI_Handler(void)
 }
 
 /**
-  * @brief This function handles Hard fault interrupt.
-  */
+ * @brief This function handles Hard fault interrupt.
+ */
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
@@ -95,8 +97,8 @@ void HardFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Memory management fault.
-  */
+ * @brief This function handles Memory management fault.
+ */
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
@@ -110,8 +112,8 @@ void MemManage_Handler(void)
 }
 
 /**
-  * @brief This function handles Pre-fetch fault, memory access fault.
-  */
+ * @brief This function handles Pre-fetch fault, memory access fault.
+ */
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
@@ -125,8 +127,8 @@ void BusFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Undefined instruction or illegal state.
-  */
+ * @brief This function handles Undefined instruction or illegal state.
+ */
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
@@ -140,21 +142,8 @@ void UsageFault_Handler(void)
 }
 
 /**
-  * @brief This function handles System service call via SWI instruction.
-  */
-void SVC_Handler(void)
-{
-  /* USER CODE BEGIN SVCall_IRQn 0 */
-
-  /* USER CODE END SVCall_IRQn 0 */
-  /* USER CODE BEGIN SVCall_IRQn 1 */
-
-  /* USER CODE END SVCall_IRQn 1 */
-}
-
-/**
-  * @brief This function handles Debug monitor.
-  */
+ * @brief This function handles Debug monitor.
+ */
 void DebugMon_Handler(void)
 {
   /* USER CODE BEGIN DebugMonitor_IRQn 0 */
@@ -165,33 +154,6 @@ void DebugMon_Handler(void)
   /* USER CODE END DebugMonitor_IRQn 1 */
 }
 
-/**
-  * @brief This function handles Pendable request for system service.
-  */
-void PendSV_Handler(void)
-{
-  /* USER CODE BEGIN PendSV_IRQn 0 */
-
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
-
-  /* USER CODE END PendSV_IRQn 1 */
-}
-
-/**
-  * @brief This function handles System tick timer.
-  */
-void SysTick_Handler(void)
-{
-  /* USER CODE BEGIN SysTick_IRQn 0 */
-
-  /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
-}
-
 /******************************************************************************/
 /* STM32F3xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
@@ -200,8 +162,8 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles EXTI line[9:5] interrupts.
-  */
+ * @brief This function handles EXTI line[9:5] interrupts.
+ */
 void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
@@ -214,8 +176,22 @@ void EXTI9_5_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles USART3 global interrupt / USART3 wake-up interrupt through EXTI line 28.
-  */
+ * @brief This function handles TIM1 update and TIM16 interrupts.
+ */
+void TIM1_UP_TIM16_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
+
+  /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
+
+  /* USER CODE END TIM1_UP_TIM16_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USART3 global interrupt / USART3 wake-up interrupt through EXTI line 28.
+ */
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
@@ -224,7 +200,6 @@ void USART3_IRQHandler(void)
     /*Clear the interrupt by reading the DR:*/
     char rxdByte = huart3.Instance->RDR;
     neoRxCallback(rxdByte);
-    tud_cdc_write_char(rxdByte);
   }
 
   /* USER CODE END USART3_IRQn 0 */
@@ -235,8 +210,8 @@ void USART3_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles EXTI line[15:10] interrupts.
-  */
+ * @brief This function handles EXTI line[15:10] interrupts.
+ */
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
@@ -250,8 +225,8 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles USB high priority interrupt remap.
-  */
+ * @brief This function handles USB high priority interrupt remap.
+ */
 void USB_HP_IRQHandler(void)
 {
   /* USER CODE BEGIN USB_HP_IRQn 0 */

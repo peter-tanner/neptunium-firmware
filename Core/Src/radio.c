@@ -177,7 +177,6 @@ void lora_rx_data(void)
     if (buf_status.pld_len_in_bytes > 0)
     {
         sx126x_read_buffer(&ctx, buf_status.buffer_start_pointer, rx_buf, buf_status.pld_len_in_bytes);
-        tud_cdc_write(rx_buf, buf_status.pld_len_in_bytes);
     }
 }
 

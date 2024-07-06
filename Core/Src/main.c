@@ -19,10 +19,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "fatfs.h"
+#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "logging.h"
+#include "usb_device.h"
+#include "entrypoint.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,14 +57,17 @@ TIM_HandleTypeDef htim17;
 
 UART_HandleTypeDef huart3;
 
-PCD_HandleTypeDef hpcd_USB_FS;
-
 osThreadId defaultTaskHandle;
+osMessageQId usbRxQueueHandle;
 /* USER CODE BEGIN PV */
 uint8_t gnss_buf[64];
 ubx_nav_pvt_msg_t navPvt;
 ubx_nav_dop_msg_t navDop;
 
+osThreadId entrypointTaskHandle;
+osThreadId loggingTaskHandle;
+osThreadId lsm6dsoIntTaskHandle;
+osThreadId lps22hbIntTaskHandle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,31 +78,24 @@ static void MX_SPI2_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM17_Init(void);
-static void MX_USB_PCD_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_CAN_Init(void);
 static void MX_TIM3_Init(void);
-void StartDefaultTask(void const *argument);
+void StartDefaultTask(void const * argument);
 
 static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
-void cdc_task(void);
-
+void StartLoggingTask(void const *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void halt()
-{
-  while (1)
-    ;
-}
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
@@ -125,8 +124,6 @@ int main(void)
   MX_SPI3_Init();
   MX_TIM2_Init();
   MX_TIM17_Init();
-  MX_USB_PCD_Init();
-  MX_FATFS_Init();
   MX_ADC2_Init();
   MX_CAN_Init();
   MX_TIM3_Init();
@@ -134,38 +131,29 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-// SET ALL CS TO HIGH TO DISABLE SLAVES
-#define SET_CS(port, pin) HAL_GPIO_WritePin((port), (pin), GPIO_PIN_SET)
-
-  SET_CS(ACCEL1_CS_GPIO_Port, ACCEL1_CS_Pin);
-  SET_CS(ACCEL2_CS_GPIO_Port, ACCEL2_CS_Pin);
-  SET_CS(BARO_CS_GPIO_Port, BARO_CS_Pin);
-
-  SET_CS(LORA_CS_GPIO_Port, LORA_CS_Pin);
-  SET_CS(MEM_CS_GPIO_Port, MEM_CS_Pin);
-  SET_CS(SD_CS_GPIO_Port, SD_CS_Pin);
+  MX_USB_DEVICE_Init();
 
   static uint32_t s; // store n elts
 
   // HAL_Delay(100);
-  neoInit();
+  // neoInit();
   // lsm6dsox_read_data_drdy_init();
   // lps22hb_multi_read_fifo_init();
   // lora_setup(EN_RX | EN_TX);
 
   // SD CARD INITIALIZATION
 
-  HAL_Delay(1000); // a short delay is important to let the SD card settle
+  // HAL_Delay(1000); // a short delay is important to let the SD card settle
 
   FATFS FatFs;  // Fatfs handle
   FIL fil;      // File handle
   FRESULT fres; // Result after operations
 
   // Open the file system
-  do
-  {
-    fres = f_mount(&FatFs, "test_file.txt", 1); // 1=mount now
-  } while (fres != FR_OK);
+  // do
+  // {
+  //   fres = f_mount(&FatFs, "test_file.txt", 1); // 1=mount now
+  // } while (fres != FR_OK);
 
   // END SD CARD INITIALIZATION
 
@@ -183,8 +171,14 @@ int main(void)
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
+  /* Create the queue(s) */
+  /* definition and creation of usbRxQueue */
+  osMessageQDef(usbRxQueue, 16, uint16_t);
+  usbRxQueueHandle = osMessageCreate(osMessageQ(usbRxQueue), NULL);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+#if 0 
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -193,6 +187,9 @@ int main(void)
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
+#endif
+  osThreadDef(entrypointTask, StartEntrypointTask, osPriorityNormal, 0, 128);
+  entrypointTaskHandle = osThreadCreate(osThread(entrypointTask), NULL);
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
@@ -213,9 +210,9 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -223,8 +220,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -238,8 +235,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -249,7 +247,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_USART3
+                              |RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL;
@@ -260,9 +259,9 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief NVIC Configuration.
- * @retval None
- */
+  * @brief NVIC Configuration.
+  * @retval None
+  */
 static void MX_NVIC_Init(void)
 {
   /* USART3_IRQn interrupt configuration */
@@ -271,10 +270,10 @@ static void MX_NVIC_Init(void)
 }
 
 /**
- * @brief ADC2 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief ADC2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_ADC2_Init(void)
 {
 
@@ -289,7 +288,7 @@ static void MX_ADC2_Init(void)
   /* USER CODE END ADC2_Init 1 */
 
   /** Common config
-   */
+  */
   hadc2.Instance = ADC2;
   hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
@@ -310,7 +309,7 @@ static void MX_ADC2_Init(void)
   }
 
   /** Configure Regular Channel
-   */
+  */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
@@ -324,13 +323,14 @@ static void MX_ADC2_Init(void)
   /* USER CODE BEGIN ADC2_Init 2 */
 
   /* USER CODE END ADC2_Init 2 */
+
 }
 
 /**
- * @brief CAN Initialization Function
- * @param None
- * @retval None
- */
+  * @brief CAN Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_CAN_Init(void)
 {
 
@@ -360,13 +360,14 @@ static void MX_CAN_Init(void)
   /* USER CODE BEGIN CAN_Init 2 */
 
   /* USER CODE END CAN_Init 2 */
+
 }
 
 /**
- * @brief SPI2 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief SPI2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_SPI2_Init(void)
 {
 
@@ -399,13 +400,14 @@ static void MX_SPI2_Init(void)
   /* USER CODE BEGIN SPI2_Init 2 */
 
   /* USER CODE END SPI2_Init 2 */
+
 }
 
 /**
- * @brief SPI3 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief SPI3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_SPI3_Init(void)
 {
 
@@ -438,13 +440,14 @@ static void MX_SPI3_Init(void)
   /* USER CODE BEGIN SPI3_Init 2 */
 
   /* USER CODE END SPI3_Init 2 */
+
 }
 
 /**
- * @brief TIM2 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM2_Init(void)
 {
 
@@ -498,13 +501,14 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 2 */
   HAL_TIM_MspPostInit(&htim2);
+
 }
 
 /**
- * @brief TIM3 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM3_Init(void)
 {
 
@@ -546,13 +550,14 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 2 */
   HAL_TIM_MspPostInit(&htim3);
+
 }
 
 /**
- * @brief TIM17 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief TIM17 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_TIM17_Init(void)
 {
 
@@ -608,13 +613,14 @@ static void MX_TIM17_Init(void)
 
   /* USER CODE END TIM17_Init 2 */
   HAL_TIM_MspPostInit(&htim17);
+
 }
 
 /**
- * @brief USART3 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART3_UART_Init(void)
 {
 
@@ -642,60 +648,19 @@ static void MX_USART3_UART_Init(void)
   /* USER CODE BEGIN USART3_Init 2 */
 
   /* USER CODE END USART3_Init 2 */
+
 }
 
 /**
- * @brief USB Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_PCD_Init(void)
-{
-
-  /* USER CODE BEGIN USB_Init 0 */
-  /* USER CODE END USB_Init 0 */
-
-  /* USER CODE BEGIN USB_Init 1 */
-
-  /* USER CODE END USB_Init 1 */
-  hpcd_USB_FS.Instance = USB;
-  hpcd_USB_FS.Init.dev_endpoints = 8;
-  hpcd_USB_FS.Init.speed = PCD_SPEED_FULL;
-  hpcd_USB_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
-  hpcd_USB_FS.Init.low_power_enable = DISABLE;
-  hpcd_USB_FS.Init.battery_charging_enable = DISABLE;
-  if (HAL_PCD_Init(&hpcd_USB_FS) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USB_Init 2 */
-  /*
-   * https://stm32world.com/wiki/STM32_USB_Device_Renumeration
-   * Force host to re-enumerate device
-   */
-  GPIO_InitTypeDef GPIO_InitStruct = {0};                // All zeroed out
-  GPIO_InitStruct.Pin = GPIO_PIN_12;                     // Hardcoding this - PA12 is D+
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;            // Push-pull mode
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;                  // Resetting so pull low
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;               // Really shouldn't matter in this case
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);                // Initialize with above settings
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET); // Yank low
-  HAL_Delay(50);                                         // Enough time for host to disconnect device
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);   // Back high - so host will enumerate
-  HAL_GPIO_DeInit(GPIOA, GPIO_PIN_12);                   // Deinitialize the pin
-  /* USER CODE END USB_Init 2 */
-}
-
-/**
- * @brief GPIO Initialization Function
- * @param None
- * @retval None
- */
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  /* USER CODE BEGIN MX_GPIO_Init_1 */
-  /* USER CODE END MX_GPIO_Init_1 */
+/* USER CODE BEGIN MX_GPIO_Init_1 */
+/* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -704,10 +669,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, MEM_CS_Pin | SD_CS_Pin | ACCEL1_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOC, MEM_CS_Pin|SD_CS_Pin|ACCEL1_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, ACCEL2_CS_Pin | LORA_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, ACCEL2_CS_Pin|LORA_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(BARO_CS_GPIO_Port, BARO_CS_Pin, GPIO_PIN_SET);
@@ -715,41 +680,34 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(RADIO_R_TX_GPIO_Port, RADIO_R_TX_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : MEM_CS_Pin ACCEL1_CS_Pin */
-  GPIO_InitStruct.Pin = MEM_CS_Pin | ACCEL1_CS_Pin;
+  /*Configure GPIO pins : MEM_CS_Pin SD_CS_Pin ACCEL1_CS_Pin */
+  GPIO_InitStruct.Pin = MEM_CS_Pin|SD_CS_Pin|ACCEL1_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SD_CS_Pin */
-  GPIO_InitStruct.Pin = SD_CS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(SD_CS_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : ARM_SENSE_Pin ACCEL1_INT2_Pin */
-  GPIO_InitStruct.Pin = ARM_SENSE_Pin | ACCEL1_INT2_Pin;
+  GPIO_InitStruct.Pin = ARM_SENSE_Pin|ACCEL1_INT2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ACCEL2_CS_Pin LORA_CS_Pin */
-  GPIO_InitStruct.Pin = ACCEL2_CS_Pin | LORA_CS_Pin;
+  GPIO_InitStruct.Pin = ACCEL2_CS_Pin|LORA_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : BARO_INT_Pin ACCEL2_INT2_Pin */
-  GPIO_InitStruct.Pin = BARO_INT_Pin | ACCEL2_INT2_Pin;
+  GPIO_InitStruct.Pin = BARO_INT_Pin|ACCEL2_INT2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : BARO_CS_Pin RADIO_R_TX_Pin */
-  GPIO_InitStruct.Pin = BARO_CS_Pin | RADIO_R_TX_Pin;
+  GPIO_InitStruct.Pin = BARO_CS_Pin|RADIO_R_TX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -762,8 +720,8 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
-  /* USER CODE BEGIN MX_GPIO_Init_2 */
-  /* USER CODE END MX_GPIO_Init_2 */
+/* USER CODE BEGIN MX_GPIO_Init_2 */
+/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
@@ -791,8 +749,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const *argument)
+void StartDefaultTask(void const * argument)
 {
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
   for (;;)
@@ -803,20 +763,19 @@ void StartDefaultTask(void const *argument)
 }
 
 /**
- * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM1 interrupt took place, inside
- * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
- * a global variable "uwTick" used as application time base.
- * @param  htim : TIM handle
- * @retval None
- */
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM1 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM1)
-  {
+  if (htim->Instance == TIM1) {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
@@ -825,9 +784,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -839,14 +798,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

@@ -22,8 +22,7 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -36,29 +35,29 @@ extern "C"
 #include "lsm6dso.h"
 #include "lps22hb.h"
 #include "radio.h"
-     /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-     /* Exported types ------------------------------------------------------------*/
-     /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
      extern SPI_HandleTypeDef hspi2;
      extern SPI_HandleTypeDef hspi3;
 
-     /* USER CODE END ET */
+/* USER CODE END ET */
 
-     /* Exported constants --------------------------------------------------------*/
-     /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-     /* USER CODE END EC */
+/* USER CODE END EC */
 
-     /* Exported macro ------------------------------------------------------------*/
-     /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-     /* USER CODE END EM */
+/* USER CODE END EM */
 
-     void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
-     /* Exported functions prototypes ---------------------------------------------*/
-     void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -95,7 +94,7 @@ extern "C"
 
 /* USER CODE BEGIN Private defines */
 #define SD_SPI_HANDLE hspi3
-     /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
